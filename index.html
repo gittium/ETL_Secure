@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Data Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #0066cc;
+            --primary-green: #00a86b;
+            --light-blue: #e8f4fd;
+            --light-green: #e8f5e8;
+            --dark-blue: #004080;
+            --gray-100: #f8f9fa;
+            --gray-200: #e9ecef;
+            --gray-300: #dee2e6;
+            --gray-600: #6c757d;
+            --gray-800: #343a40;
+            --white: #ffffff;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.15);
+            --border-radius: 12px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, var(--light-blue) 0%, var(--light-green) 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            background: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .header h1 {
+            color: var(--primary-blue);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .header p {
+            color: var(--gray-600);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Status Card */
+        .status-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .status-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .status-healthy {
+            background: var(--light-green);
+            color: var(--success);
+        }
+
+        .status-unhealthy {
+            background: #ffeaa7;
+            color: var(--danger);
+        }
+
+        .status-item i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        /* Main Content Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Table Selection */
+        .selection-panel {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+            color: var(--white);
+            padding: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-content {
+            padding: 1.5rem;
+        }
+
+        .table-block {
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            overflow: hidden;
+            transition: var(--transition);
+            background: var(--white);
+        }
+
+        .table-block:hover {
+            border-color: var(--primary-blue);
+            box-shadow: var(--shadow);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 600;
+            color: var(--gray-800);
+            transition: var(--transition);
+        }
+
+        .table-header:hover {
+            background: linear-gradient(135deg, var(--light-blue), var(--gray-200));
+        }
+
+        .table-header i {
+            color: var(--primary-blue);
+            font-size: 1.2rem;
+        }
+
+        .expand-icon {
+            margin-left: auto;
+            transition: var(--transition);
+        }
+
+        .table-header.expanded .expand-icon {
+            transform: rotate(180deg);
+        }
+
+        .select-all-container {
+            padding: 1rem;
+            background: var(--light-blue);
+            border-bottom: 1px solid var(--gray-300);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .fields-container {
+            display: none;
+            padding: 1.5rem;
+            background: var(--white);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .fields-container.show {
+            display: block;
+        }
+
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .field-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .field-item:hover {
+            background: var(--light-blue);
+        }
+
+        .field-item input[type="checkbox"] {
+            accent-color: var(--primary-blue);
+            transform: scale(1.1);
+        }
+
+        .field-item label {
+            font-size: 0.9rem;
+            color: var(--gray-800);
+            cursor: pointer;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .control-section {
+            margin-bottom: 2rem;
+        }
+
+        .control-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .control-section h3 {
+            color: var(--gray-800);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        /* Buttons */
+        .btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn:hover {
+            background: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: var(--gray-800);
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn:disabled {
+            background: var(--gray-300);
+            color: var(--gray-600);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Results Panel */
+        .results-panel {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .results-panel.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-item {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .result-success {
+            background: var(--light-green);
+            border-left: 4px solid var(--success);
+        }
+
+        .result-info {
+            background: var(--light-blue);
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--gray-200);
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Configuration List */
+        .config-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .config-item {
+            padding: 1rem;
+            border: 1px solid var(--gray-200);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            background: var(--gray-100);
+            transition: var(--transition);
+        }
+
+        .config-item:hover {
+            background: var(--light-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .config-header {
+            font-weight: 600;
+            color: var(--gray-800);
+            margin-bottom: 0.25rem;
+        }
+
+        .config-details {
+            font-size: 0.9rem;
+            color: var(--gray-600);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .status-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .fields-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--gray-200);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-hospital"></i>
+                Hospital Data Management System
+            </h1>
+            <p>Select tables and columns for secure data processing with privacy protection</p>
+        </div>
+
+        <!-- System Status -->
+        <div class="status-card">
+            <h2><i class="fas fa-heartbeat"></i> System Status</h2>
+            <div class="status-grid" id="statusGrid">
+                <div class="status-item">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <div>Checking System...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="main-grid">
+            <!-- Table Selection Panel -->
+            <div class="selection-panel">
+                <div class="panel-header">
+                    <i class="fas fa-table"></i>
+                    Database Tables & Columns
+                </div>
+                <div class="panel-content">
+                    <div id="loadingTables" class="loading show">
+                        <div class="spinner"></div>
+                        <p>Loading database tables...</p>
+                    </div>
+                    <div id="tablesContainer"></div>
+                </div>
+            </div>
+
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <!-- Quick Actions -->
+                <div class="control-section">
+                    <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    <a href="http://localhost:8000" class="btn" target="_blank">
+                        <i class="fas fa-book"></i>
+                        API Documentation
+                    </a>
+                    <button class="btn btn-warning" onclick="refreshTables()">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh Tables
+                    </button>
+                    
+                </div>
+
+                <!-- Configuration -->
+                <div class="control-section">
+                    <h3><i class="fas fa-cog"></i> Configuration</h3>
+                    <button id="saveConfigBtn" class="btn btn-success" onclick="saveConfiguration()" disabled>
+                        <i class="fas fa-save"></i>
+                        Save Configuration
+                    </button>
+                    
+                </div>
+
+                <!-- Saved Configurations -->
+                <!-- <div class="control-section" id="configSection" style="display: none;">
+                    <h3><i class="fas fa-archive"></i> Saved Configurations</h3>
+                    <div id="configList" class="config-list"></div>
+                </div> -->
+            </div>
+        </div>
+
+        <!-- Results Panel -->
+        <div id="resultsPanel" class="results-panel">
+            <h3><i class="fas fa-check-circle"></i> Configuration Saved Successfully!</h3>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let currentTables = {};
+        let currentConfigs = [];
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            checkSystemHealth();
+            loadTables();
+        });
+
+        // Check system health
+        async function checkSystemHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const health = await response.json();
+                
+                const statusGrid = document.getElementById('statusGrid');
+                statusGrid.innerHTML = `
+                    <div class="status-item ${health.system_status === 'Healthy' ? 'status-healthy' : 'status-unhealthy'}">
+                        <i class="fas ${health.system_status === 'Healthy' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+                        <div><strong>Overall Status</strong><br>${health.system_status}</div>
+                    </div>
+                    <div class="status-item ${health.source_database === 'OK' ? 'status-healthy' : 'status-unhealthy'}">
+                        <i class="fas fa-database"></i>
+                        <div><strong>Source Database</strong><br>${health.source_database}</div>
+                    </div>
+                    <div class="status-item ${health.destination_database === 'OK' ? 'status-healthy' : 'status-unhealthy'}">
+                        <i class="fas fa-server"></i>
+                        <div><strong>Destination Database</strong><br>${health.destination_database}</div>
+                    </div>
+                    <div class="status-item status-healthy">
+                        <i class="fas fa-file-alt"></i>
+                        <div><strong>Configurations</strong><br>${health.total_configs} saved</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Health check failed:', error);
+                const statusGrid = document.getElementById('statusGrid');
+                statusGrid.innerHTML = `
+                    <div class="status-item status-unhealthy">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div><strong>Connection Error</strong><br>Cannot reach server</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Load database tables
+        async function loadTables() {
+            try {
+                const response = await fetch(`${API_BASE}/tables`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    currentTables = data.tables;
+                    renderTables();
+                } else {
+                    throw new Error(data.message || 'Failed to load tables');
+                }
+            } catch (error) {
+                console.error('Failed to load tables:', error);
+                document.getElementById('loadingTables').innerHTML = `
+                    <div style="text-align: center; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Failed to load tables. Please check your database connection.</p>
+                        <button class="btn" onclick="loadTables()">
+                            <i class="fas fa-retry"></i>
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Render tables in the UI
+        function renderTables() {
+            const container = document.getElementById('tablesContainer');
+            const loading = document.getElementById('loadingTables');
+            
+            loading.style.display = 'none';
+            
+            if (Object.keys(currentTables).length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--gray-600);">
+                        <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>No tables found in the database.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = Object.entries(currentTables).map(([tableName, columns]) => `
+                <div class="table-block">
+                    <div class="table-header" onclick="toggleTable('${tableName}')">
+                        <i class="fas fa-table"></i>
+                        <strong>${tableName}</strong>
+                        <span style="margin-left: auto; color: var(--gray-600); font-size: 0.9rem;">
+                            ${columns.length} columns
+                        </span>
+                        <i class="fas fa-chevron-down expand-icon" id="icon-${tableName}"></i>
+                    </div>
+                    
+                    <div class="select-all-container">
+                        <input type="checkbox" id="selectAll-${tableName}" onchange="toggleAllFields('${tableName}')">
+                        <label for="selectAll-${tableName}">
+                            <i class="fas fa-check-double"></i>
+                            Select All Columns
+                        </label>
+                    </div>
+                    
+                    <div class="fields-container" id="fields-${tableName}">
+                        <div class="fields-grid">
+                            ${columns.map(column => `
+                                <div class="field-item">
+                                    <input type="checkbox" name="${tableName}[]" value="${column}" 
+                                           id="${tableName}_${column}" onchange="updateSaveButton()">
+                                    <label for="${tableName}_${column}">${column}</label>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle table expansion
+        function toggleTable(tableName) {
+            const fieldsContainer = document.getElementById(`fields-${tableName}`);
+            const icon = document.getElementById(`icon-${tableName}`);
+            const header = icon.closest('.table-header');
+            
+            fieldsContainer.classList.toggle('show');
+            header.classList.toggle('expanded');
+        }
+
+        // Toggle all fields for a table
+        function toggleAllFields(tableName) {
+            const selectAllCheckbox = document.getElementById(`selectAll-${tableName}`);
+            const fieldCheckboxes = document.querySelectorAll(`input[name="${tableName}[]"]`);
+            
+            fieldCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            
+            updateSaveButton();
+        }
+
+        // Update save button state
+        function updateSaveButton() {
+            const anyChecked = document.querySelectorAll('input[type="checkbox"]:checked').length > 0;
+            const saveBtn = document.getElementById('saveConfigBtn');
+            saveBtn.disabled = !anyChecked;
+        }
+
+        // Save configuration
+        async function saveConfiguration() {
+            const selections = {};
+            
+            // Collect selected fields for each table
+            Object.keys(currentTables).forEach(tableName => {
+                const checkedFields = Array.from(document.querySelectorAll(`input[name="${tableName}[]"]:checked`))
+                    .map(input => input.value);
+                
+                if (checkedFields.length > 0) {
+                    selections[tableName] = checkedFields;
+                }
+            });
+
+            if (Object.keys(selections).length === 0) {
+                alert('Please select at least one field from any table.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/config`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ selections })
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    showResults(result);
+                } else {
+                    throw new Error(result.message || 'Failed to save configuration');
+                }
+            } catch (error) {
+                console.error('Failed to save configuration:', error);
+                alert('Failed to save configuration: ' + error.message);
+            }
+        }
+
+        // Show results
+        function showResults(result) {
+            const resultsPanel = document.getElementById('resultsPanel');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsContent.innerHTML = `
+                <div class="result-item result-success">
+                    <i class="fas fa-check-circle"></i>
+                    <div>
+                        <strong>Configuration ID: ${result.config_id}</strong><br>
+                        Successfully saved configuration with ${result.selected_tables.length} tables
+                    </div>
+                </div>
+                <div class="result-item result-info">
+                    <i class="fas fa-sort"></i>
+                    <div>
+                        <strong>Safe Loading Order:</strong><br>
+                        ${result.load_order.join(' → ')}
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-success" onclick="runETLJob(${result.config_id})">
+                        <i class="fas fa-play"></i>
+                        Run ETL Job Now
+                    </button>
+                    
+                </div>
+            `;
+            
+            resultsPanel.classList.add('show');
+            resultsPanel.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Run ETL job
+        async function runETLJob(configId) {
+            try {
+                const response = await fetch(`${API_BASE}/run-etl`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        config_id: configId,
+                        use_pipeline: true,
+                        full_refresh: false
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert(`ETL job started successfully for configuration ${configId}!`);
+                } else {
+                    throw new Error(result.message || 'Failed to start ETL job');
+                }
+            } catch (error) {
+                console.error('Failed to run ETL job:', error);
+                alert('Failed to start ETL job: ' + error.message);
+            }
+        }
+
+        // Load saved configurations
+        async function loadConfigurations() {
+            try {
+                const response = await fetch(`${API_BASE}/configs`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    displayConfigurations(data.configs);
+                } else {
+                    throw new Error(data.message || 'Failed to load configurations');
+                }
+            } catch (error) {
+                console.error('Failed to load configurations:', error);
+                alert('Failed to load configurations: ' + error.message);
+            }
+        }
+
+        // Display configurations
+        function displayConfigurations(configs) {
+            const configSection = document.getElementById('configSection');
+            const configList = document.getElementById('configList');
+            
+            if (configs.length === 0) {
+                configList.innerHTML = `
+                    <div style="text-align: center; padding: 1rem; color: var(--gray-600);">
+                        <i class="fas fa-inbox"></i>
+                        <p>No saved configurations found.</p>
+                    </div>
+                `;
+            } else {
+                configList.innerHTML = configs.map(config => `
+                    <div class="config-item">
+                        <div class="config-header">Configuration #${config.id}</div>
+                        <div class="config-details">
+                            ${config.table_count} tables: ${config.tables.join(', ')}<br>
+                            Created: ${config.created_at}
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn" style="font-size: 0.8rem; padding: 0.5rem 1rem; margin-bottom: 0;" 
+                                    onclick="runETLJob(${config.id})">
+                                <i class="fas fa-play"></i>
+                                Run ETL
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            configSection.style.display = 'block';
+        }
+
+        // Refresh tables
+        function refreshTables() {
+            document.getElementById('loadingTables').style.display = 'block';
+            document.getElementById('tablesContainer').innerHTML = '';
+            loadTables();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+sqlalchemy
+pandas
+pydantic
+numpy
+psycopg2-binary
+PyMySQL
+cryptography
+fastapi
+uvicorn
+python-multipart
+openpyxl
+requests
+python-dateutil
