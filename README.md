@@ -1,4 +1,4 @@
-# ETL Platform
+# ETL Platform Moving Internal Hospital Data.
 
 A Python-based ETL (Extract, Transform, Load) system that copies data from PostgreSQL to MySQL with some data transformation and PII masking.
 
